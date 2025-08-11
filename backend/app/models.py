@@ -24,6 +24,8 @@ class Place(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
+    # Google Places unique identifier for this place (if selected from autocomplete)
+    google_place_id: Mapped[str | None] = mapped_column(String(255), nullable=True, index=True)
     location: Mapped[str | None] = mapped_column(String(512), nullable=True)
     # Geometry column: 4326 WGS84, POINT(lon lat)
     geom: Mapped[bytes | None] = mapped_column(Geometry(geometry_type="POINT", srid=4326), nullable=True)

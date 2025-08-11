@@ -5,6 +5,7 @@ import TagInput from './TagInput';
 
 export type PlaceFormValues = {
   name: string;
+  google_place_id?: string;
   location?: string;
   description?: string;
   tags?: string[];
@@ -24,6 +25,7 @@ export default function PlaceForm({
 }) {
   const [values, setValues] = React.useState<PlaceFormValues>({
     name: initial?.name ?? '',
+    google_place_id: (initial as any)?.google_place_id ?? '',
     location: initial?.location ?? '',
     description: initial?.description ?? '',
     tags: initial?.tags ?? [],
@@ -32,12 +34,38 @@ export default function PlaceForm({
     website_url: initial?.website_url ?? '',
   });
   const [busy, setBusy] = React.useState(false);
+  const [predictions, setPredictions] = React.useState<any[]>([]);
+  const [placesError, setPlacesError] = React.useState<string | null>(null);
+  const debounceRef = React.useRef<any | null>(null);
+  const sessionTokenRef = React.useRef<string>('');
+  React.useEffect(() => {
+    if (!sessionTokenRef.current) {
+      try {
+        // @ts-ignore
+        const id = (globalThis?.crypto?.randomUUID?.() as string) || String(Date.now());
+        sessionTokenRef.current = id;
+      } catch {
+        sessionTokenRef.current = String(Date.now());
+      }
+    }
+  }, []);
+  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setBusy(true);
     try {
-      await onSubmit({ ...values, tags: values.tags?.filter(Boolean) });
+      const payload = {
+        ...values,
+        name: values.name?.trim(),
+        google_place_id: values.google_place_id?.trim() || undefined,
+        location: values.location?.trim() || undefined,
+        description: values.description?.trim() || undefined,
+        google_maps_url: values.google_maps_url?.trim() || undefined,
+        website_url: values.website_url?.trim() || undefined,
+        tags: values.tags?.filter(Boolean) || undefined,
+      };
+      await onSubmit(payload);
     } finally {
       setBusy(false);
     }
@@ -49,12 +77,82 @@ export default function PlaceForm({
     <form onSubmit={handleSubmit} className="bg-white border border-slate-200 rounded-xl p-5 space-y-4 shadow-sm">
       <div>
         <label className="block text-sm font-medium text-slate-700">Name</label>
-        <input
-          className={inputCls}
-          value={values.name}
-          onChange={(e) => setValues({ ...values, name: e.target.value })}
-          required
-        />
+        <div className="relative">
+          <input
+            className={inputCls}
+            value={values.name}
+            onChange={(e) => {
+              const text = e.target.value;
+              setValues({ ...values, name: text, google_place_id: '' });
+              setPlacesError(null);
+              if (debounceRef.current) clearTimeout(debounceRef.current);
+              if (!text || text.length < 2) {
+                setPredictions([]);
+                return;
+              }
+              debounceRef.current = setTimeout(async () => {
+                if (!apiKey) {
+                  setPlacesError('Missing NEXT_PUBLIC_GOOGLE_MAPS_API_KEY');
+                  return;
+                }
+                try {
+                  const resp = await fetch('https://places.googleapis.com/v1/places:autocomplete', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'X-Goog-Api-Key': apiKey,
+                      'X-Goog-FieldMask': 'suggestions.placePrediction.placeId,suggestions.placePrediction.structuredFormat,suggestions.placePrediction.text',
+                    },
+                    body: JSON.stringify({
+                      input: text,
+                      sessionToken: sessionTokenRef.current,
+                    }),
+                  });
+                  if (!resp.ok) {
+                    setPlacesError(`Places API error ${resp.status}`);
+                    setPredictions([]);
+                    return;
+                  }
+                  const data = await resp.json();
+                  const suggestions = (data?.suggestions || [])
+                    .map((s: any) => s.placePrediction)
+                    .filter(Boolean);
+                  setPredictions(suggestions);
+                } catch (err: any) {
+                  setPlacesError('Failed to fetch suggestions');
+                  setPredictions([]);
+                }
+              }, 250);
+            }}
+            required
+          />
+          {placesError && (
+            <div className="mt-1 text-xs text-red-600">{placesError} (check API key and restrictions)</div>
+          )}
+          {predictions && predictions.length > 0 && (
+            <ul className="absolute z-10 mt-1 max-h-64 w-full overflow-auto rounded-md border border-slate-200 bg-white shadow">
+              {predictions.map((p: any) => (
+                <li
+                  key={p.placeId}
+                  className="cursor-pointer px-3 py-2 hover:bg-slate-50"
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => {
+                    const mainText = p.structuredFormat?.mainText?.text || p.text?.text || '';
+                    setValues((prev) => ({
+                      ...prev,
+                      name: mainText,
+                      google_place_id: p.placeId,
+                    }));
+                    setPredictions([]);
+                  }}
+                >
+                  <div className="text-sm font-medium text-slate-900">{p.structuredFormat?.mainText?.text || p.text?.text}</div>
+                  <div className="text-xs text-slate-600">{p.structuredFormat?.secondaryText?.text}</div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
       <div>
         <label className="block text-sm font-medium text-slate-700">Location</label>

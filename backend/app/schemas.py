@@ -27,6 +27,7 @@ class Visit(VisitBase):
 # Place Schemas
 class PlaceBase(BaseModel):
     name: str
+    google_place_id: Optional[str] = None
     location: Optional[str] = None
     description: Optional[str] = None
     tags: Optional[List[str]] = None
@@ -65,6 +66,7 @@ class PlaceCreate(PlaceBase):
 
 class PlaceUpdate(BaseModel):
     name: Optional[str] = None
+    google_place_id: Optional[str] = None
     location: Optional[str] = None
     description: Optional[str] = None
     tags: Optional[List[str]] = None

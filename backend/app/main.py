@@ -51,6 +51,7 @@ def on_startup() -> None:
             # Ignore if not permitted (e.g., non-superuser). The image sets it up.
             pass
         # Idempotent migration for newly added columns
+        conn.execute(text("ALTER TABLE IF EXISTS places ADD COLUMN IF NOT EXISTS google_place_id VARCHAR(255) NULL"))
         conn.execute(text("ALTER TABLE IF EXISTS places ADD COLUMN IF NOT EXISTS google_maps_url TEXT NULL"))
         conn.execute(text("ALTER TABLE IF EXISTS places ADD COLUMN IF NOT EXISTS website_url TEXT NULL"))
     Base.metadata.create_all(bind=engine)

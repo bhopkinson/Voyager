@@ -17,6 +17,7 @@ def create_place(
 ) -> Place:
     place = Place(
         name=place_in.name,
+        google_place_id=place_in.google_place_id,
         location=place_in.location,
         description=place_in.description,
         tags=place_in.tags,
@@ -95,6 +96,8 @@ def update_place(db: Session, place_id: int, place_in: PlaceUpdate, geom_point_w
 
     if place_in.name is not None:
         place.name = place_in.name
+    if place_in.google_place_id is not None:
+        place.google_place_id = place_in.google_place_id
     if place_in.location is not None:
         place.location = place_in.location
     if place_in.description is not None:
