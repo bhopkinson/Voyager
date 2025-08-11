@@ -5,19 +5,11 @@ Voyager is a full-stack web application for tracking places to visit. It include
 ## Monorepo Structure
 
 ```
-/voyager
-├── .devcontainer/
-│   └── devcontainer.json
-├── .gitignore
+/
 ├── docker-compose.yml
 ├── README.md
 ├── backend/
 │   ├── app/
-│   │   ├── __init__.py
-│   │   ├── main.py
-│   │   ├── models.py
-│   │   ├── schemas.py
-│   │   └── crud.py
 │   ├── tests/
 │   ├── Dockerfile
 │   └── requirements.txt
@@ -25,14 +17,16 @@ Voyager is a full-stack web application for tracking places to visit. It include
     ├── app/
     ├── components/
     ├── public/
-    ├── .eslintrc.json
     ├── Dockerfile
     ├── jest.config.js
+    ├── jest.setup.js
+    ├── lib/
+    ├── next-env.d.ts
     ├── next.config.js
     ├── package.json
-    ├── tsconfig.json
     ├── postcss.config.js
-    └── tailwind.config.ts
+    ├── tailwind.config.ts
+    └── tsconfig.json
 ```
 
 ## Quick Start (Docker)
