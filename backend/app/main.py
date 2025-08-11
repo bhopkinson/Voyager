@@ -83,15 +83,7 @@ def geocode_to_point_wkt(location: Optional[str]) -> Optional[WKTElement]:
         lat, lon = parsed
         return WKTElement(f"POINT({lon} {lat})", srid=4326)
 
-    try:
-        geolocator = Nominatim(user_agent="voyager_app")
-        geocode = geolocator.geocode(location)
-        if geocode:
-            lat, lon = geocode.latitude, geocode.longitude
-            return WKTElement(f"POINT({lon} {lat})", srid=4326)
-    except Exception:
-        # Fallback: no geometry
-        return None
+    # If not lat,lon, we no longer attempt geocoding; validation in schema enforces lat,lon only now
     return None
 
 

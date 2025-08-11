@@ -4,6 +4,7 @@ from datetime import datetime, date
 from typing import List, Optional
 
 from pydantic import BaseModel, Field, field_validator, HttpUrl
+import re
 
 
 # Visit Schemas
@@ -59,6 +60,24 @@ class PlaceBase(BaseModel):
                 normalized.append(t)
         return normalized
 
+    @field_validator("location", mode="before")
+    @classmethod
+    def validate_location_lat_lon(cls, v):
+        if v is None:
+            return None
+        s = str(v).strip()
+        if s == "":
+            return None
+        m = re.match(r"^\s*([+-]?[0-9]*\.?[0-9]+)\s*,\s*([+-]?[0-9]*\.?[0-9]+)\s*$", s)
+        if not m:
+            raise ValueError("location must be 'lat,lon'")
+        lat = float(m.group(1))
+        lon = float(m.group(2))
+        if not (-90.0 <= lat <= 90.0 and -180.0 <= lon <= 180.0):
+            raise ValueError("location lat or lon out of range")
+        # normalize to simple 'lat,lon' string with up to 6 decimals
+        return f"{lat:.6f},{lon:.6f}"
+
 
 class PlaceCreate(PlaceBase):
     pass
@@ -96,6 +115,23 @@ class PlaceUpdate(BaseModel):
                 seen.add(t)
                 normalized.append(t)
         return normalized
+
+    @field_validator("location", mode="before")
+    @classmethod
+    def validate_location_lat_lon(cls, v):
+        if v is None:
+            return None
+        s = str(v).strip()
+        if s == "":
+            return None
+        m = re.match(r"^\s*([+-]?[0-9]*\.?[0-9]+)\s*,\s*([+-]?[0-9]*\.?[0-9]+)\s*$", s)
+        if not m:
+            raise ValueError("location must be 'lat,lon'")
+        lat = float(m.group(1))
+        lon = float(m.group(2))
+        if not (-90.0 <= lat <= 90.0 and -180.0 <= lon <= 180.0):
+            raise ValueError("location lat or lon out of range")
+        return f"{lat:.6f},{lon:.6f}"
 
 
 class Place(PlaceBase):

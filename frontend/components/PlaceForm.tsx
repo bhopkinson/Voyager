@@ -50,6 +50,7 @@ export default function PlaceForm({
     }
   }, []);
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+  const fieldMask = 'id,displayName,formattedAddress,location,googleMapsUri';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -138,12 +139,33 @@ export default function PlaceForm({
                   onMouseDown={(e) => e.preventDefault()}
                   onClick={() => {
                     const mainText = p.structuredFormat?.mainText?.text || p.text?.text || '';
-                    setValues((prev) => ({
-                      ...prev,
-                      name: mainText,
-                      google_place_id: p.placeId,
-                    }));
+                    const placeId = p.placeId;
+                    setValues((prev) => ({ ...prev, name: mainText, google_place_id: placeId }));
                     setPredictions([]);
+                    // Fetch place details to auto-fill lat,lon and Google Maps URL
+                    (async () => {
+                      try {
+                        const resp = await fetch(`https://places.googleapis.com/v1/places/${placeId}?languageCode=en&regionCode=GB`, {
+                          headers: {
+                            'X-Goog-Api-Key': apiKey || '',
+                            'X-Goog-FieldMask': fieldMask,
+                          },
+                        });
+                        if (resp.ok) {
+                          const data = await resp.json();
+                          const lat = data?.location?.latitude;
+                          const lon = data?.location?.longitude;
+                          const mapsUri = data?.googleMapsUri;
+                          setValues((prev) => ({
+                            ...prev,
+                            location: typeof lat === 'number' && typeof lon === 'number' ? `${lat.toFixed(6)},${lon.toFixed(6)}` : prev.location,
+                            google_maps_url: mapsUri || prev.google_maps_url,
+                          }));
+                        }
+                      } catch (err) {
+                        // ignore detail fetch errors; user can fill manually
+                      }
+                    })();
                   }}
                 >
                   <div className="text-sm font-medium text-slate-900">{p.structuredFormat?.mainText?.text || p.text?.text}</div>
@@ -155,10 +177,10 @@ export default function PlaceForm({
         </div>
       </div>
       <div>
-        <label className="block text-sm font-medium text-slate-700">Location</label>
+        <label className="block text-sm font-medium text-slate-700">Location (lat,lon)</label>
         <input
           className={inputCls}
-          placeholder="address or lat,lon"
+          placeholder="12.345678,-98.765432"
           value={values.location}
           onChange={(e) => setValues({ ...values, location: e.target.value })}
         />
