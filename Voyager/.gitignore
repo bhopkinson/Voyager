@@ -1,0 +1,39 @@
+# General
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+*.swp
+.env
+.env.*
+.venv/
+venv/
+dist/
+build/
+coverage/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.next/
+.turbo/
+.vercel/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+
+# Docker
+**/.cache/
+docker-data/
+
+# VSCode
+.vscode/
+
+

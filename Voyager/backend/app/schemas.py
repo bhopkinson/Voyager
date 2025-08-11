@@ -1,0 +1,105 @@
+from __future__ import annotations
+
+from datetime import datetime, date
+from typing import List, Optional
+
+from pydantic import BaseModel, Field, field_validator, HttpUrl
+
+
+# Visit Schemas
+class VisitBase(BaseModel):
+    visit_date: date
+    rating: Optional[int] = Field(default=None, ge=1, le=5)
+    notes: Optional[str] = None
+
+
+class VisitCreate(VisitBase):
+    pass
+
+
+class Visit(VisitBase):
+    id: int
+
+    class Config:
+        from_attributes = True
+
+
+# Place Schemas
+class PlaceBase(BaseModel):
+    name: str
+    location: Optional[str] = None
+    description: Optional[str] = None
+    tags: Optional[List[str]] = None
+    cost: Optional[int] = Field(default=None, ge=0, le=3)
+    google_maps_url: Optional[HttpUrl] = None
+    website_url: Optional[HttpUrl] = None
+
+    @field_validator("tags", mode="before")
+    @classmethod
+    def normalize_tags(cls, v):
+        if v is None:
+            return None
+        # Accept comma string or list
+        items: List[str]
+        if isinstance(v, str):
+            items = [part.strip() for part in v.split(",")]
+        else:
+            items = list(v)
+        normalized: List[str] = []
+        seen = set()
+        for item in items:
+            if item is None:
+                continue
+            t = str(item).strip().lower()
+            if not t:
+                continue
+            if t not in seen:
+                seen.add(t)
+                normalized.append(t)
+        return normalized
+
+
+class PlaceCreate(PlaceBase):
+    pass
+
+
+class PlaceUpdate(BaseModel):
+    name: Optional[str] = None
+    location: Optional[str] = None
+    description: Optional[str] = None
+    tags: Optional[List[str]] = None
+    cost: Optional[int] = Field(default=None, ge=0, le=3)
+    google_maps_url: Optional[HttpUrl] = None
+    website_url: Optional[HttpUrl] = None
+
+    @field_validator("tags", mode="before")
+    @classmethod
+    def normalize_tags(cls, v):
+        if v is None:
+            return None
+        items: List[str]
+        if isinstance(v, str):
+            items = [part.strip() for part in v.split(",")]
+        else:
+            items = list(v)
+        normalized: List[str] = []
+        seen = set()
+        for item in items:
+            if item is None:
+                continue
+            t = str(item).strip().lower()
+            if not t:
+                continue
+            if t not in seen:
+                seen.add(t)
+                normalized.append(t)
+        return normalized
+
+
+class Place(PlaceBase):
+    id: int
+    created_at: datetime
+    visits: List[Visit] = Field(default_factory=list)
+
+    class Config:
+        from_attributes = True
