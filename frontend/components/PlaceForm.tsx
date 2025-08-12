@@ -52,7 +52,7 @@ export default function PlaceForm({
     }
   }, []);
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-  const fieldMask = 'id,displayName,formattedAddress,shortFormattedAddress,addressComponents,location,googleMapsUri';
+  const fieldMask = 'id,displayName,formattedAddress,shortFormattedAddress,addressComponents,location,googleMapsUri,websiteUri';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -159,6 +159,7 @@ export default function PlaceForm({
                           const lat = data?.location?.latitude;
                           const lon = data?.location?.longitude;
                           const mapsUri = data?.googleMapsUri;
+                          const websiteUri = data?.websiteUri;
                           const comps: any[] = data?.addressComponents || [];
                           const find = (t: string) => comps.find((c: any) => Array.isArray(c.types) && c.types.includes(t));
                           const textVal = (c: any) => c?.shortText || c?.longText;
@@ -176,6 +177,7 @@ export default function PlaceForm({
                             location_summary: summary,
                             location: typeof lat === 'number' && typeof lon === 'number' ? `${lat.toFixed(6)},${lon.toFixed(6)}` : prev.location,
                             google_maps_url: mapsUri || prev.google_maps_url,
+                            website_url: websiteUri || prev.website_url,
                           }));
                         }
                       } catch (err) {
