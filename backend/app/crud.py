@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session, joinedload
 from geoalchemy2.elements import WKTElement
 
 from .models import Place, Visit
-from .schemas import PlaceCreate, PlaceUpdate, VisitCreate
+from .schemas import PlaceCreate, PlaceUpdate, VisitCreate, VisitUpdate
 
 
 def create_place(
@@ -142,3 +142,28 @@ def create_visit(db: Session, place_id: int, visit_in: VisitCreate) -> Optional[
     db.commit()
     db.refresh(visit)
     return visit
+
+
+def update_visit(db: Session, visit_id: int, visit_in: VisitUpdate) -> Optional[Visit]:
+    visit = db.get(Visit, visit_id)
+    if not visit:
+        return None
+    if visit_in.visit_date is not None:
+        visit.visit_date = visit_in.visit_date
+    if visit_in.rating is not None:
+        visit.rating = visit_in.rating
+    if visit_in.notes is not None:
+        visit.notes = visit_in.notes
+    db.add(visit)
+    db.commit()
+    db.refresh(visit)
+    return visit
+
+
+def delete_visit(db: Session, visit_id: int) -> bool:
+    visit = db.get(Visit, visit_id)
+    if not visit:
+        return False
+    db.delete(visit)
+    db.commit()
+    return True

@@ -161,6 +161,22 @@ def add_visit(place_id: int, visit_in: schemas.VisitCreate, db: Session = Depend
     return visit
 
 
+@app.put("/visits/{visit_id}", response_model=schemas.Visit, tags=["visits"])
+def update_visit(visit_id: int, visit_in: schemas.VisitUpdate, db: Session = Depends(get_db)):
+    visit = crud.update_visit(db, visit_id, visit_in)
+    if not visit:
+        raise HTTPException(status_code=404, detail="Visit not found")
+    return visit
+
+
+@app.delete("/visits/{visit_id}", status_code=204, tags=["visits"])
+def delete_visit(visit_id: int, db: Session = Depends(get_db)):
+    deleted = crud.delete_visit(db, visit_id)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Visit not found")
+    return None
+
+
 @app.get("/tags", response_model=List[str], tags=["meta"])
 def list_tags(db: Session = Depends(get_db)) -> List[str]:
     rows = db.execute(text("""

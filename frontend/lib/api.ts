@@ -61,3 +61,19 @@ export async function addVisit(placeId: number, data: any) {
   if (!res.ok) throw new Error('Failed to add visit');
   return res.json();
 }
+
+export async function updateVisit(visitId: number, data: any) {
+  const res = await fetch(`${API_BASE}/visits/${visitId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Failed to update visit');
+  return res.json();
+}
+
+export async function deleteVisit(visitId: number) {
+  const res = await fetch(`${API_BASE}/visits/${visitId}`, { method: 'DELETE' });
+  if (!res.ok) throw new Error('Failed to delete visit');
+  return true;
+}

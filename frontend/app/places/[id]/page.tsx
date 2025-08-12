@@ -63,7 +63,7 @@ export default function PlaceDetailPage({ params }: { params: { id: string } }) 
         <h2 className="text-xl font-semibold">Visits</h2>
         <AddVisitForm onAdd={async (values) => { await addVisit(id, values); await load(); }} />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {place.visits?.map((v: any) => <VisitLog key={v.id} visit={v} />)}
+          {place.visits?.map((v: any) => <VisitLog key={v.id} visit={v} onChanged={load} />)}
         </div>
       </section>
     </div>

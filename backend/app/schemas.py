@@ -18,6 +18,12 @@ class VisitCreate(VisitBase):
     pass
 
 
+class VisitUpdate(BaseModel):
+    visit_date: Optional[date] = None
+    rating: Optional[int] = Field(default=None, ge=1, le=5)
+    notes: Optional[str] = None
+
+
 class Visit(VisitBase):
     id: int
 
