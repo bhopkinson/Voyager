@@ -18,6 +18,7 @@ def create_place(
     place = Place(
         name=place_in.name,
         google_place_id=place_in.google_place_id,
+        location_summary=place_in.location_summary,
         location=place_in.location,
         description=place_in.description,
         tags=place_in.tags,
@@ -47,7 +48,11 @@ def list_places(
 
     if text_search:
         like = f"%{text_search}%"
-        conditions.append(or_(Place.name.ilike(like), Place.description.ilike(like)))
+        conditions.append(or_(
+            Place.name.ilike(like),
+            Place.description.ilike(like),
+            Place.location_summary.ilike(like),
+        ))
 
     if max_cost is not None:
         # Include items where cost is unknown (NULL)
@@ -98,6 +103,8 @@ def update_place(db: Session, place_id: int, place_in: PlaceUpdate, geom_point_w
         place.name = place_in.name
     if place_in.google_place_id is not None:
         place.google_place_id = place_in.google_place_id
+    if place_in.location_summary is not None:
+        place.location_summary = place_in.location_summary
     if place_in.location is not None:
         place.location = place_in.location
     if place_in.description is not None:

@@ -3,6 +3,7 @@ import Link from 'next/link';
 export type Place = {
   id: number;
   name: string;
+  location_summary?: string | null;
   location?: string | null;
   description?: string | null;
   tags?: string[] | null;
@@ -23,8 +24,8 @@ export default function PlaceCard({ place }: { place: Place }) {
         <h3 className="text-lg font-semibold text-slate-900 line-clamp-1">{place.name}</h3>
         <span className="text-xs px-2 py-0.5 rounded bg-slate-50 border text-slate-700">{costLabel}</span>
       </div>
-      {place.location && (
-        <div className="mt-1 text-sm text-slate-600 line-clamp-1">{place.location}</div>
+      {(place.location_summary || place.location) && (
+        <div className="mt-1 text-sm text-slate-600 line-clamp-1">{place.location_summary || place.location}</div>
       )}
       {place.tags?.length ? (
         <div className="mt-3 flex flex-wrap gap-1">

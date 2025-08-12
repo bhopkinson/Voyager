@@ -52,6 +52,7 @@ def on_startup() -> None:
             pass
         # Idempotent migration for newly added columns
         conn.execute(text("ALTER TABLE IF EXISTS places ADD COLUMN IF NOT EXISTS google_place_id VARCHAR(255) NULL"))
+        conn.execute(text("ALTER TABLE IF EXISTS places ADD COLUMN IF NOT EXISTS location_summary VARCHAR(255) NULL"))
         conn.execute(text("ALTER TABLE IF EXISTS places ADD COLUMN IF NOT EXISTS google_maps_url TEXT NULL"))
         conn.execute(text("ALTER TABLE IF EXISTS places ADD COLUMN IF NOT EXISTS website_url TEXT NULL"))
     Base.metadata.create_all(bind=engine)

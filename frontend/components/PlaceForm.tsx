@@ -6,6 +6,7 @@ import TagInput from './TagInput';
 export type PlaceFormValues = {
   name: string;
   google_place_id?: string;
+  location_summary?: string;
   location?: string;
   description?: string;
   tags?: string[];
@@ -26,6 +27,7 @@ export default function PlaceForm({
   const [values, setValues] = React.useState<PlaceFormValues>({
     name: initial?.name ?? '',
     google_place_id: (initial as any)?.google_place_id ?? '',
+    location_summary: (initial as any)?.location_summary ?? '',
     location: initial?.location ?? '',
     description: initial?.description ?? '',
     tags: initial?.tags ?? [],
@@ -50,7 +52,7 @@ export default function PlaceForm({
     }
   }, []);
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-  const fieldMask = 'id,displayName,formattedAddress,location,googleMapsUri';
+  const fieldMask = 'id,displayName,formattedAddress,shortFormattedAddress,addressComponents,location,googleMapsUri';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,6 +62,7 @@ export default function PlaceForm({
         ...values,
         name: values.name?.trim(),
         google_place_id: values.google_place_id?.trim() || undefined,
+        location_summary: values.location_summary?.trim() || undefined,
         location: values.location?.trim() || undefined,
         description: values.description?.trim() || undefined,
         google_maps_url: values.google_maps_url?.trim() || undefined,
@@ -142,7 +145,7 @@ export default function PlaceForm({
                     const placeId = p.placeId;
                     setValues((prev) => ({ ...prev, name: mainText, google_place_id: placeId }));
                     setPredictions([]);
-                    // Fetch place details to auto-fill lat,lon and Google Maps URL
+                    // Fetch place details to auto-fill lat,lon, location summary and Google Maps URL
                     (async () => {
                       try {
                         const resp = await fetch(`https://places.googleapis.com/v1/places/${placeId}?languageCode=en&regionCode=GB`, {
@@ -156,8 +159,21 @@ export default function PlaceForm({
                           const lat = data?.location?.latitude;
                           const lon = data?.location?.longitude;
                           const mapsUri = data?.googleMapsUri;
+                          const comps: any[] = data?.addressComponents || [];
+                          const find = (t: string) => comps.find((c: any) => Array.isArray(c.types) && c.types.includes(t));
+                          const textVal = (c: any) => c?.shortText || c?.longText;
+                          const summary =
+                            textVal(find('postal_town')) ||
+                            textVal(find('locality')) ||
+                            textVal(find('administrative_area_level_2')) ||
+                            textVal(find('administrative_area_level_1')) ||
+                            textVal(find('country')) ||
+                            data?.shortFormattedAddress ||
+                            data?.formattedAddress ||
+                            '';
                           setValues((prev) => ({
                             ...prev,
+                            location_summary: summary,
                             location: typeof lat === 'number' && typeof lon === 'number' ? `${lat.toFixed(6)},${lon.toFixed(6)}` : prev.location,
                             google_maps_url: mapsUri || prev.google_maps_url,
                           }));
@@ -175,6 +191,15 @@ export default function PlaceForm({
             </ul>
           )}
         </div>
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-slate-700">Location summary</label>
+        <input
+          className={inputCls}
+          placeholder="e.g., London"
+          value={values.location_summary}
+          onChange={(e) => setValues({ ...values, location_summary: e.target.value })}
+        />
       </div>
       <div>
         <label className="block text-sm font-medium text-slate-700">Location (lat,lon)</label>

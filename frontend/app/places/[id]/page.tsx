@@ -30,7 +30,12 @@ export default function PlaceDetailPage({ params }: { params: { id: string } }) 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold tracking-tight">{place.name}</h1>
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">{place.name}</h1>
+          {(place.location_summary || place.location) && (
+            <div className="text-slate-600">{place.location_summary || place.location}</div>
+          )}
+        </div>
         <div className="space-x-2">
           <Link href={`/places/${id}/edit`} className="px-4 py-2 rounded-md bg-slate-100 hover:bg-slate-200 border">Edit</Link>
           <button
