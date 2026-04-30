@@ -1,6 +1,6 @@
 {
   "name": "Voyager Dev Container",
-  "dockerComposeFile": ["../docker-compose.yml"],
+  "dockerComposeFile": ["../docker-compose.yml", "../docker-compose.dev.yml"],
   "service": "backend",
   "workspaceFolder": "/app",
   "customizations": {

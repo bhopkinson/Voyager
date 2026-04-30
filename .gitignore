@@ -6,6 +6,7 @@ Thumbs.db
 *.swp
 .env
 .env.*
+!.env.example
 .venv/
 venv/
 dist/
@@ -32,6 +33,9 @@ __pycache__/
 # Docker
 **/.cache/
 docker-data/
+
+# DB dumps
+backups/
 
 # VSCode
 .vscode/

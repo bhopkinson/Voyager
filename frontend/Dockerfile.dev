@@ -1,0 +1,11 @@
+FROM node:20-alpine
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm ci
+
+# Source is bind-mounted at runtime; this COPY makes the image self-contained for cold builds.
+COPY . .
+
+EXPOSE 3000
+CMD ["npm", "run", "dev"]

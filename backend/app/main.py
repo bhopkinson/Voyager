@@ -4,14 +4,15 @@ import os
 import re
 from typing import List, Optional, Tuple
 
+from alembic import command as alembic_command
+from alembic.config import Config as AlembicConfig
 from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine, inspect, text
 from sqlalchemy.orm import Session, sessionmaker
 from geoalchemy2.elements import WKTElement
 from geopy.geocoders import Nominatim
 
-from .models import Base
 from . import crud, schemas
 
 
@@ -43,19 +44,16 @@ def get_db():
 
 @app.on_event("startup")
 def on_startup() -> None:
-    # Ensure PostGIS extension is available and create tables
-    with engine.begin() as conn:
-        try:
-            conn.execute(text("CREATE EXTENSION IF NOT EXISTS postgis"))
-        except Exception:
-            # Ignore if not permitted (e.g., non-superuser). The image sets it up.
-            pass
-        # Idempotent migration for newly added columns
-        conn.execute(text("ALTER TABLE IF EXISTS places ADD COLUMN IF NOT EXISTS google_place_id VARCHAR(255) NULL"))
-        conn.execute(text("ALTER TABLE IF EXISTS places ADD COLUMN IF NOT EXISTS location_summary VARCHAR(255) NULL"))
-        conn.execute(text("ALTER TABLE IF EXISTS places ADD COLUMN IF NOT EXISTS google_maps_url TEXT NULL"))
-        conn.execute(text("ALTER TABLE IF EXISTS places ADD COLUMN IF NOT EXISTS website_url TEXT NULL"))
-    Base.metadata.create_all(bind=engine)
+    cfg = AlembicConfig("/app/alembic.ini")
+    cfg.set_main_option("sqlalchemy.url", DATABASE_URL)
+
+    # If the DB already has tables but has never been stamped (pre-Alembic state),
+    # stamp it as head so Alembic doesn't try to recreate existing tables.
+    inspector = inspect(engine)
+    if not inspector.has_table("alembic_version") and inspector.has_table("places"):
+        alembic_command.stamp(cfg, "head")
+    else:
+        alembic_command.upgrade(cfg, "head")
 
 
 @app.get("/", tags=["meta"])

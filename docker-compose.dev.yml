@@ -1,0 +1,22 @@
+# Overlay for local development. Use via: docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+# Or simply: make dev
+
+services:
+  backend:
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    environment:
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTHONUNBUFFERED: "1"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules   # shields container node_modules from host bind mount
+      - /app/.next          # keeps build cache inside container
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8000}
+      WATCHPACK_POLLING: "true"   # required for inotify inside Docker on Linux/WSL
+    command: npm run dev
