@@ -3,6 +3,7 @@
 import React from 'react';
 import { addVisit, fetchPlace, deletePlace } from '@/lib/api';
 import VisitLog from '@/components/VisitLog';
+import PlaceMap from '@/components/PlaceMap';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -45,7 +46,11 @@ export default function PlaceDetailPage({ params }: { params: { id: string } }) 
         </div>
       </div>
       <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm space-y-2">
-        <div><span className="font-medium text-slate-700">Location: </span>{place.location ?? '—'}</div>
+        <PlaceMap
+          google_place_id={place.google_place_id}
+          location={place.location}
+          google_maps_url={place.google_maps_url}
+        />
         <div className="text-slate-800 whitespace-pre-wrap">{place.description ?? ''}</div>
         {(place.google_maps_url || place.website_url) && (
           <div className="flex items-center gap-3 text-sm mt-2">

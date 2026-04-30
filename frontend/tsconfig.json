@@ -18,7 +18,7 @@
       "@/app/*": ["app/*"],
       "@/lib/*": ["lib/*"]
     },
-    "types": ["@testing-library/jest-dom"]
+    "types": ["@testing-library/jest-dom", "google.maps"]
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules"]
