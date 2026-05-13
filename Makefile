@@ -13,6 +13,9 @@ COMPOSE_DEV  := docker compose -f docker-compose.yml -f docker-compose.dev.yml
 # The external DB volume is fixed — not project-scoped — so all worktrees share one dataset.
 DB_VOLUME := voyager_db_data
 
+# Root of the main worktree (parent of .git); used to bootstrap .env in git worktrees.
+MAIN_REPO_DIR := $(shell git rev-parse --git-common-dir 2>/dev/null | xargs dirname 2>/dev/null)
+
 .PHONY: help \
         dev dev-d build build-d stop down logs logs-backend logs-frontend \
         shell-backend shell-frontend \
@@ -30,10 +33,20 @@ db-init-volume: ## One-time: create the shared external DB volume (run once per 
 	  && echo "Volume '$(DB_VOLUME)' already exists — skipping." \
 	  || (docker volume create $(DB_VOLUME) && echo "Created volume '$(DB_VOLUME)'.")
 
-dev: db-init-volume ## Start all services with hot-reload (foreground)
+# Auto-bootstrap .env from the main worktree (for git worktrees that don't have one).
+.env:
+	@MAIN_ENV="$(MAIN_REPO_DIR)/.env"; \
+	if [ -f "$$MAIN_ENV" ]; then \
+	  cp "$$MAIN_ENV" .env && echo "Copied .env from main worktree."; \
+	else \
+	  cp .env.example .env && echo "Created .env from .env.example — fill in secrets before running make dev."; \
+	  exit 1; \
+	fi
+
+dev: db-init-volume .env ## Start all services with hot-reload (foreground)
 	$(COMPOSE_DEV) up --build
 
-dev-d: db-init-volume ## Start all services with hot-reload (background)
+dev-d: db-init-volume .env ## Start all services with hot-reload (background)
 	$(COMPOSE_DEV) up --build -d
 
 build: db-init-volume ## Build and start production images (foreground)

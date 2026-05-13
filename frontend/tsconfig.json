@@ -1,7 +1,11 @@
 {
   "compilerOptions": {
     "target": "es2020",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": false,
     "skipLibCheck": true,
     "strict": true,
@@ -14,12 +18,34 @@
     "jsx": "preserve",
     "baseUrl": ".",
     "paths": {
-      "@/components/*": ["components/*"],
-      "@/app/*": ["app/*"],
-      "@/lib/*": ["lib/*"]
+      "@/components/*": [
+        "components/*"
+      ],
+      "@/app/*": [
+        "app/*"
+      ],
+      "@/lib/*": [
+        "lib/*"
+      ]
     },
-    "types": ["@testing-library/jest-dom", "google.maps"]
+    "types": [
+      "@testing-library/jest-dom",
+      "google.maps"
+    ],
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules"]
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
