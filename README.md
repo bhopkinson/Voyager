@@ -7,6 +7,24 @@ Voyager is a full-stack web application for tracking places to visit. It include
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) (or Docker Engine + Compose plugin)
 - `make`
 
+### Windows
+
+`make` is not included with Windows. Install it with [Chocolatey](https://chocolatey.org/):
+
+```powershell
+choco install make
+```
+
+Or with winget:
+
+```powershell
+winget install GnuWin32.Make
+```
+
+Then reopen your terminal so the new command is on your `PATH`.
+
+Alternatively, run all commands inside **WSL2** for a full Linux environment.
+
 ## Project structure
 
 ```
