@@ -2,7 +2,7 @@ FROM node:20-alpine
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci
+RUN npm install
 
 # Source is bind-mounted at runtime; this COPY makes the image self-contained for cold builds.
 COPY . .
