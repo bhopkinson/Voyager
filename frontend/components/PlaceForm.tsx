@@ -24,6 +24,15 @@ export default function PlaceForm({
   onSubmit: (values: PlaceFormValues) => Promise<void> | void;
   submitLabel?: string;
 }) {
+  const idPrefix = React.useId();
+  const nameId = `${idPrefix}-name`;
+  const locationSummaryId = `${idPrefix}-location-summary`;
+  const locationId = `${idPrefix}-location`;
+  const descriptionId = `${idPrefix}-description`;
+  const googleMapsUrlId = `${idPrefix}-google-maps-url`;
+  const websiteUrlId = `${idPrefix}-website-url`;
+  const tagsId = `${idPrefix}-tags`;
+  const costId = `${idPrefix}-cost`;
   const [values, setValues] = React.useState<PlaceFormValues>({
     name: initial?.name ?? '',
     google_place_id: (initial as any)?.google_place_id ?? '',
@@ -80,9 +89,10 @@ export default function PlaceForm({
   return (
     <form onSubmit={handleSubmit} className="bg-white border border-slate-200 rounded-xl p-5 space-y-4 shadow-sm">
       <div>
-        <label className="block text-sm font-medium text-slate-700">Name</label>
+        <label htmlFor={nameId} className="block text-sm font-medium text-slate-700">Name</label>
         <div className="relative">
           <input
+            id={nameId}
             className={inputCls}
             value={values.name}
             onChange={(e) => {
@@ -195,8 +205,9 @@ export default function PlaceForm({
         </div>
       </div>
       <div>
-        <label className="block text-sm font-medium text-slate-700">Location summary</label>
+        <label htmlFor={locationSummaryId} className="block text-sm font-medium text-slate-700">Location summary</label>
         <input
+          id={locationSummaryId}
           className={inputCls}
           placeholder="e.g., London"
           value={values.location_summary}
@@ -204,8 +215,9 @@ export default function PlaceForm({
         />
       </div>
       <div>
-        <label className="block text-sm font-medium text-slate-700">Location (lat,lon)</label>
+        <label htmlFor={locationId} className="block text-sm font-medium text-slate-700">Location (lat,lon)</label>
         <input
+          id={locationId}
           className={inputCls}
           placeholder="12.345678,-98.765432"
           value={values.location}
@@ -213,8 +225,9 @@ export default function PlaceForm({
         />
       </div>
       <div>
-        <label className="block text-sm font-medium text-slate-700">Description</label>
+        <label htmlFor={descriptionId} className="block text-sm font-medium text-slate-700">Description</label>
         <textarea
+          id={descriptionId}
           className={inputCls}
           rows={4}
           value={values.description}
@@ -222,8 +235,9 @@ export default function PlaceForm({
         />
       </div>
       <div>
-        <label className="block text-sm font-medium text-slate-700">Google Maps URL</label>
+        <label htmlFor={googleMapsUrlId} className="block text-sm font-medium text-slate-700">Google Maps URL</label>
         <input
+          id={googleMapsUrlId}
           className={inputCls}
           placeholder="https://maps.google.com/..."
           type="url"
@@ -232,8 +246,9 @@ export default function PlaceForm({
         />
       </div>
       <div>
-        <label className="block text-sm font-medium text-slate-700">Website URL</label>
+        <label htmlFor={websiteUrlId} className="block text-sm font-medium text-slate-700">Website URL</label>
         <input
+          id={websiteUrlId}
           className={inputCls}
           placeholder="https://example.com"
           type="url"
@@ -242,12 +257,13 @@ export default function PlaceForm({
         />
       </div>
       <div>
-        <label className="block text-sm font-medium text-slate-700">Tags</label>
-        <TagInput value={values.tags ?? []} onChange={(tags) => setValues({ ...values, tags })} />
+        <label htmlFor={tagsId} className="block text-sm font-medium text-slate-700">Tags</label>
+        <TagInput inputId={tagsId} value={values.tags ?? []} onChange={(tags) => setValues({ ...values, tags })} />
       </div>
       <div>
-        <label className="block text-sm font-medium text-slate-700">Cost</label>
+        <label htmlFor={costId} className="block text-sm font-medium text-slate-700">Cost</label>
         <select
+          id={costId}
           className={inputCls}
           value={values.cost}
           onChange={(e) => setValues({ ...values, cost: Number(e.target.value) })}

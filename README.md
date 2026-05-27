@@ -99,6 +99,7 @@ make test               # runs backend (pytest) and frontend (jest) tests in iso
 make test-backend       # runs backend tests against a separate PostGIS test database
 make test-frontend      # runs frontend Jest tests
 make test-frontend-typecheck # runs frontend TypeScript checks
+make test-e2e           # runs Playwright tests against the isolated test stack
 make check              # runs tests and frontend type checking
 make test-clean         # removes test containers and test volumes
 ```

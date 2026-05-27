@@ -19,6 +19,12 @@ export default function FilterSidebar({
   onChange: (next: Filters) => void;
 }) {
   const [useCurrentLocation, setUseCurrentLocation] = React.useState(false);
+  const idPrefix = React.useId();
+  const searchId = `${idPrefix}-search`;
+  const maxCostId = `${idPrefix}-max-cost`;
+  const tagsId = `${idPrefix}-tags`;
+  const distanceId = `${idPrefix}-distance`;
+  const radiusId = `${idPrefix}-radius`;
 
   React.useEffect(() => {
     if (!useCurrentLocation) return;
@@ -36,8 +42,9 @@ export default function FilterSidebar({
   return (
     <aside className={cardCls}>
       <div>
-        <label className="block text-sm font-medium text-slate-700">Search</label>
+        <label htmlFor={searchId} className="block text-sm font-medium text-slate-700">Search</label>
         <input
+          id={searchId}
           className={inputCls}
           placeholder="text..."
           value={value.text_search ?? ''}
@@ -47,10 +54,11 @@ export default function FilterSidebar({
 
       <div>
         <div className="flex items-center justify-between">
-          <label className="block text-sm font-medium text-slate-700">Max Cost</label>
+          <label htmlFor={maxCostId} className="block text-sm font-medium text-slate-700">Max Cost</label>
           <span className="text-xs text-slate-500">{value.max_cost ?? 3}</span>
         </div>
         <input
+          id={maxCostId}
           type="range"
           min={0}
           max={3}
@@ -66,25 +74,27 @@ export default function FilterSidebar({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-slate-700">Tags</label>
-        <TagInput value={value.tags ?? []} onChange={(tags) => onChange({ ...value, tags })} placeholder="Filter by tag..." />
+        <label htmlFor={tagsId} className="block text-sm font-medium text-slate-700">Tags</label>
+        <TagInput inputId={tagsId} value={value.tags ?? []} onChange={(tags) => onChange({ ...value, tags })} placeholder="Filter by tag..." />
       </div>
 
       <div className="space-y-2">
-        <label className="block text-sm font-medium text-slate-700">Distance Filter</label>
+        <label htmlFor={distanceId} className="block text-sm font-medium text-slate-700">Distance Filter</label>
         <label className="inline-flex items-center gap-2 text-sm text-slate-700">
           <input type="checkbox" className="rounded border-slate-300 text-blue-600 focus:ring-blue-500" checked={useCurrentLocation} onChange={(e) => setUseCurrentLocation(e.target.checked)} />
           Use current location
         </label>
         <input
+          id={distanceId}
           className={inputCls}
           placeholder="lat,lon"
           value={value.distance_from ?? ''}
           onChange={(e) => onChange({ ...value, distance_from: e.target.value })}
         />
         <div className="flex items-center gap-2">
-          <span className="text-sm text-slate-700">Radius (km)</span>
+          <label htmlFor={radiusId} className="text-sm text-slate-700">Radius (km)</label>
           <input
+            id={radiusId}
             type="number"
             min={1}
             value={value.radius_km ?? 50}

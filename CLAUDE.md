@@ -83,6 +83,7 @@ Do not run backend tests against the shared `voyager_db_data` development databa
 ```bash
 make test-backend
 make test-frontend
+make test-e2e
 make test
 make check
 ```

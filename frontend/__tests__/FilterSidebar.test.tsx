@@ -18,17 +18,17 @@ describe('FilterSidebar', () => {
     render(<FilterSidebar value={value} onChange={onChange} />);
     await waitFor(() => expect(mockFetch).toHaveBeenCalled());
 
-    fireEvent.change(screen.getByPlaceholderText('text...'), {
+    fireEvent.change(screen.getByLabelText('Search'), {
       target: { value: 'museum' },
     });
     expect(onChange).toHaveBeenCalledWith({ ...value, text_search: 'museum' });
 
-    fireEvent.change(screen.getByRole('slider'), {
+    fireEvent.change(screen.getByLabelText('Max Cost'), {
       target: { value: '1' },
     });
     expect(onChange).toHaveBeenCalledWith({ ...value, max_cost: 1 });
 
-    fireEvent.change(screen.getByPlaceholderText('lat,lon'), {
+    fireEvent.change(screen.getByLabelText('Distance Filter'), {
       target: { value: '51.5,-0.1' },
     });
     expect(onChange).toHaveBeenCalledWith({ ...value, distance_from: '51.5,-0.1' });

@@ -5,11 +5,13 @@ import React from 'react';
 export default function TagInput({
   value,
   onChange,
-  placeholder = 'Add a tag...'
+  placeholder = 'Add a tag...',
+  inputId,
 }: {
   value: string[];
   onChange: (tags: string[]) => void;
   placeholder?: string;
+  inputId?: string;
 }) {
   const [input, setInput] = React.useState('');
   const [suggestions, setSuggestions] = React.useState<string[]>([]);
@@ -79,6 +81,7 @@ export default function TagInput({
           </span>
         ))}
         <input
+          id={inputId}
           value={input}
           onChange={(e) => { setInput(e.target.value); setOpen(true); }}
           onFocus={() => setOpen(true)}

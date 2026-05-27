@@ -196,3 +196,11 @@ def list_tags(db: Session = Depends(get_db)) -> List[str]:
         limit 10
     """)).scalars().all()
     return rows
+
+
+if os.getenv("VOYAGER_ENABLE_TEST_ROUTES") == "1":
+    @app.post("/__test/reset", tags=["test"])
+    def reset_test_database(db: Session = Depends(get_db)):
+        db.execute(text("TRUNCATE TABLE visits, places RESTART IDENTITY CASCADE"))
+        db.commit()
+        return {"status": "ok"}

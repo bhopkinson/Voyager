@@ -34,29 +34,26 @@ describe('PlaceForm', () => {
 
   it('submits a trimmed payload with blank optional fields omitted', async () => {
     const onSubmit = jest.fn().mockResolvedValue(undefined);
-    const { container } = render(
+    render(
       <PlaceForm initial={{ tags: ['coffee', ''] }} submitLabel="Create" onSubmit={onSubmit} />,
     );
     await waitFor(() => expect(mockFetch).toHaveBeenCalled());
 
-    const nameInput = container.querySelector('input[required]') as HTMLInputElement;
-    const description = container.querySelector('textarea') as HTMLTextAreaElement;
-
-    fireEvent.change(nameInput, { target: { value: '  Cafe  ' } });
-    fireEvent.change(screen.getByPlaceholderText('e.g., London'), {
+    fireEvent.change(screen.getByLabelText('Name'), { target: { value: '  Cafe  ' } });
+    fireEvent.change(screen.getByLabelText('Location summary'), {
       target: { value: '  London  ' },
     });
-    fireEvent.change(screen.getByPlaceholderText('12.345678,-98.765432'), {
+    fireEvent.change(screen.getByLabelText('Location (lat,lon)'), {
       target: { value: ' 51.500000,-0.100000 ' },
     });
-    fireEvent.change(description, { target: { value: '  Good coffee  ' } });
-    fireEvent.change(screen.getByPlaceholderText('https://maps.google.com/...'), {
+    fireEvent.change(screen.getByLabelText('Description'), { target: { value: '  Good coffee  ' } });
+    fireEvent.change(screen.getByLabelText('Google Maps URL'), {
       target: { value: '   ' },
     });
-    fireEvent.change(screen.getByPlaceholderText('https://example.com'), {
+    fireEvent.change(screen.getByLabelText('Website URL'), {
       target: { value: ' https://example.com ' },
     });
-    fireEvent.change(screen.getByRole('combobox'), { target: { value: '2' } });
+    fireEvent.change(screen.getByLabelText('Cost'), { target: { value: '2' } });
 
     fireEvent.click(screen.getByRole('button', { name: 'Create' }));
 
@@ -116,11 +113,10 @@ describe('PlaceForm', () => {
       return Promise.resolve(okJson({}));
     });
 
-    const { container } = render(<PlaceForm onSubmit={jest.fn()} />);
+    render(<PlaceForm onSubmit={jest.fn()} />);
     await waitFor(() => expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining('/tags'), expect.anything()));
 
-    const nameInput = container.querySelector('input[required]') as HTMLInputElement;
-    fireEvent.change(nameInput, { target: { value: 'Te' } });
+    fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'Te' } });
 
     await act(async () => {
       jest.advanceTimersByTime(250);
@@ -129,10 +125,10 @@ describe('PlaceForm', () => {
     fireEvent.click(await screen.findByText('Test Cafe'));
 
     await waitFor(() => {
-      expect(screen.getByPlaceholderText('e.g., London')).toHaveValue('London');
-      expect(screen.getByPlaceholderText('12.345678,-98.765432')).toHaveValue('51.501000,-0.141000');
-      expect(screen.getByPlaceholderText('https://maps.google.com/...')).toHaveValue('https://maps.google.com/test');
-      expect(screen.getByPlaceholderText('https://example.com')).toHaveValue('https://test.example');
+      expect(screen.getByLabelText('Location summary')).toHaveValue('London');
+      expect(screen.getByLabelText('Location (lat,lon)')).toHaveValue('51.501000,-0.141000');
+      expect(screen.getByLabelText('Google Maps URL')).toHaveValue('https://maps.google.com/test');
+      expect(screen.getByLabelText('Website URL')).toHaveValue('https://test.example');
     });
 
     jest.useRealTimers();

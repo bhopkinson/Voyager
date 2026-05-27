@@ -9,6 +9,7 @@
     "lint": "next lint",
     "test": "jest",
     "test:ci": "jest --watchAll=false",
+    "test:e2e": "playwright test",
     "test:watch": "jest --watch",
     "typecheck": "tsc --noEmit"
   },
@@ -20,6 +21,7 @@
   "devDependencies": {
     "@testing-library/jest-dom": "^6.4.2",
     "@testing-library/react": "^14.3.1",
+    "@playwright/test": "1.49.1",
     "@types/jest": "^29.5.12",
     "@types/google.maps": "^3.55.0",
     "@types/node": "20.12.7",

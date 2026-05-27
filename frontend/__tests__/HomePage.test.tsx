@@ -44,7 +44,7 @@ describe('HomePage', () => {
     await waitFor(() => expect(fetchPlaces).toHaveBeenCalled());
     (fetchPlaces as jest.Mock).mockClear();
 
-    fireEvent.change(screen.getByPlaceholderText('text...'), {
+    fireEvent.change(screen.getByLabelText('Search'), {
       target: { value: 'museum' },
     });
 
