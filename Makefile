@@ -9,6 +9,8 @@ export COMPOSE_PROJECT_NAME
 
 COMPOSE_PROD := docker compose -f docker-compose.yml
 COMPOSE_DEV  := docker compose -f docker-compose.yml -f docker-compose.dev.yml
+TEST_COMPOSE_PROJECT_NAME := $(subst --,-,$(COMPOSE_PROJECT_NAME)-test)
+COMPOSE_TEST := docker compose -p $(TEST_COMPOSE_PROJECT_NAME) -f docker-compose.test.yml
 
 # The external DB volume is fixed — not project-scoped — so all worktrees share one dataset.
 DB_VOLUME := voyager_db_data
@@ -20,7 +22,7 @@ MAIN_REPO_DIR := $(shell git rev-parse --git-common-dir 2>/dev/null | xargs dirn
         dev dev-d build build-d stop down logs logs-backend logs-frontend \
         shell-backend shell-frontend \
         db-init-volume db-shell db-dump db-restore db-migrate db-rollback db-makemigration \
-        test
+        test test-backend test-frontend test-clean
 
 help: ## Show available targets
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
@@ -111,6 +113,13 @@ endif
 
 # ── Tests ─────────────────────────────────────────────────────────────────────
 
-test: ## Run backend and frontend tests
-	$(COMPOSE_DEV) exec backend pytest tests/ -v
-	$(COMPOSE_DEV) exec frontend npm test -- --watchAll=false
+test: test-backend test-frontend ## Run backend and frontend tests in isolated test containers
+
+test-backend: ## Run backend tests against an isolated PostGIS test database
+	$(COMPOSE_TEST) run --build --rm backend-test
+
+test-frontend: ## Run frontend Jest tests in an isolated Node container
+	$(COMPOSE_TEST) run --build --rm frontend-test
+
+test-clean: ## Remove test containers and test volumes
+	$(COMPOSE_TEST) down -v --remove-orphans

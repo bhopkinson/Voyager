@@ -95,8 +95,14 @@ make db-shell           # psql inside the database container
 ## Running tests
 
 ```bash
-make test               # runs backend (pytest) and frontend (jest) tests
+make test               # runs backend (pytest) and frontend (jest) tests in isolated test containers
+make test-backend       # runs backend tests against a separate PostGIS test database
+make test-frontend      # runs frontend Jest tests
+make test-clean         # removes test containers and test volumes
 ```
+
+The test database uses its own Docker Compose volume and does not touch the shared
+`voyager_db_data` development database.
 
 ## Database
 

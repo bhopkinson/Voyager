@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import re
+from pathlib import Path
 from typing import List, Optional, Tuple
 
 from alembic import command as alembic_command
@@ -44,7 +45,14 @@ def get_db():
 
 @app.on_event("startup")
 def on_startup() -> None:
-    cfg = AlembicConfig("/app/alembic.ini")
+    if os.getenv("VOYAGER_SKIP_STARTUP_MIGRATIONS") == "1":
+        return
+
+    alembic_ini = os.getenv(
+        "ALEMBIC_CONFIG",
+        str(Path(__file__).resolve().parents[1] / "alembic.ini"),
+    )
+    cfg = AlembicConfig(alembic_ini)
     cfg.set_main_option("sqlalchemy.url", DATABASE_URL)
 
     # If the DB already has tables but has never been stamped (pre-Alembic state),
