@@ -64,15 +64,13 @@ describe('PlaceDetailPage', () => {
   });
 
   it('adds a visit and reloads place details', async () => {
-    const { container } = render(<PlaceDetailPage params={{ id: '7' }} />);
+    render(<PlaceDetailPage params={{ id: '7' }} />);
     await screen.findByText('Detail Place');
     (fetchPlace as jest.Mock).mockClear();
 
-    const date = container.querySelector('input[type="date"]') as HTMLInputElement;
-    const notes = screen.getByRole('textbox');
-    fireEvent.change(date, { target: { value: '2026-06-01' } });
-    fireEvent.change(screen.getByRole('combobox'), { target: { value: '5' } });
-    fireEvent.change(notes, { target: { value: 'Loved it' } });
+    fireEvent.change(screen.getByLabelText('Date'), { target: { value: '2026-06-01' } });
+    fireEvent.change(screen.getByLabelText('Rating'), { target: { value: '5' } });
+    fireEvent.change(screen.getByLabelText('Notes'), { target: { value: 'Loved it' } });
     fireEvent.click(screen.getByRole('button', { name: 'Add Visit' }));
 
     await waitFor(() => {

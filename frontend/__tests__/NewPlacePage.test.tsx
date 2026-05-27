@@ -22,11 +22,10 @@ describe('NewPlacePage', () => {
   });
 
   it('creates a place and navigates to the detail page', async () => {
-    const { container } = render(<NewPlacePage />);
+    render(<NewPlacePage />);
     await waitFor(() => expect(global.fetch).toHaveBeenCalled());
 
-    const nameInput = container.querySelector('input[required]') as HTMLInputElement;
-    fireEvent.change(nameInput, { target: { value: 'New Cafe' } });
+    fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'New Cafe' } });
     fireEvent.click(screen.getByRole('button', { name: 'Create' }));
 
     await waitFor(() => {

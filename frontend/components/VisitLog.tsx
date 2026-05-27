@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useId, useState } from 'react';
 import { updateVisit, deleteVisit } from '@/lib/api';
 export type Visit = {
   id: number;
@@ -8,6 +8,10 @@ export type Visit = {
 };
 
 export default function VisitLog({ visit, onChanged }: { visit: Visit; onChanged?: () => Promise<void> | void }) {
+  const idPrefix = useId();
+  const dateId = `${idPrefix}-date`;
+  const ratingId = `${idPrefix}-rating`;
+  const notesId = `${idPrefix}-notes`;
   const [isEditing, setIsEditing] = useState(false);
   const [visitDate, setVisitDate] = useState<string>(visit.visit_date.slice(0, 10));
   const [rating, setRating] = useState<number | ''>(visit.rating ?? '');
@@ -44,19 +48,19 @@ export default function VisitLog({ visit, onChanged }: { visit: Visit; onChanged
       <div className="border border-slate-200 rounded-xl p-3 bg-white shadow-sm space-y-2">
         <div className="flex gap-3 items-end flex-wrap">
           <div>
-            <label className="block text-xs text-slate-600">Date</label>
-            <input type="date" value={visitDate} onChange={(e) => setVisitDate(e.target.value)} className="rounded-md border-slate-300 shadow-sm px-2 py-1" />
+            <label htmlFor={dateId} className="block text-xs text-slate-600">Date</label>
+            <input id={dateId} type="date" value={visitDate} onChange={(e) => setVisitDate(e.target.value)} className="rounded-md border-slate-300 shadow-sm px-2 py-1" />
           </div>
           <div>
-            <label className="block text-xs text-slate-600">Rating</label>
-            <select value={rating} onChange={(e) => setRating(e.target.value === '' ? '' : Number(e.target.value))} className="rounded-md border-slate-300 shadow-sm px-2 py-1">
+            <label htmlFor={ratingId} className="block text-xs text-slate-600">Rating</label>
+            <select id={ratingId} value={rating} onChange={(e) => setRating(e.target.value === '' ? '' : Number(e.target.value))} className="rounded-md border-slate-300 shadow-sm px-2 py-1">
               <option value="">—</option>
               {[1,2,3,4,5].map(n => <option key={n} value={n}>{n}</option>)}
             </select>
           </div>
           <div className="flex-1 min-w-[160px]">
-            <label className="block text-xs text-slate-600">Notes</label>
-            <input value={notes} onChange={(e) => setNotes(e.target.value)} className="w-full rounded-md border-slate-300 shadow-sm px-2 py-1" />
+            <label htmlFor={notesId} className="block text-xs text-slate-600">Notes</label>
+            <input id={notesId} value={notes} onChange={(e) => setNotes(e.target.value)} className="w-full rounded-md border-slate-300 shadow-sm px-2 py-1" />
           </div>
         </div>
         <div className="flex gap-2">

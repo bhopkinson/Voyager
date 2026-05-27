@@ -81,6 +81,10 @@ export default function PlaceDetailPage({ params }: { params: { id: string } }) 
 }
 
 function AddVisitForm({ onAdd }: { onAdd: (values: any) => Promise<void> }) {
+  const idPrefix = React.useId();
+  const dateId = `${idPrefix}-date`;
+  const ratingId = `${idPrefix}-rating`;
+  const notesId = `${idPrefix}-notes`;
   const [visit_date, setDate] = React.useState<string>(new Date().toISOString().slice(0,10));
   const [rating, setRating] = React.useState<number | ''>('');
   const [notes, setNotes] = React.useState<string>('');
@@ -97,19 +101,19 @@ function AddVisitForm({ onAdd }: { onAdd: (values: any) => Promise<void> }) {
       className="bg-white border border-slate-200 rounded-xl p-4 flex flex-wrap gap-3 items-end shadow-sm"
     >
       <div>
-        <label className="block text-sm text-slate-700">Date</label>
-        <input type="date" value={visit_date} onChange={(e) => setDate(e.target.value)} className="rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 px-2 py-1" />
+        <label htmlFor={dateId} className="block text-sm text-slate-700">Date</label>
+        <input id={dateId} type="date" value={visit_date} onChange={(e) => setDate(e.target.value)} className="rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 px-2 py-1" />
       </div>
       <div>
-        <label className="block text-sm text-slate-700">Rating</label>
-        <select value={rating} onChange={(e) => setRating(e.target.value === '' ? '' : Number(e.target.value))} className="rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 px-2 py-1">
+        <label htmlFor={ratingId} className="block text-sm text-slate-700">Rating</label>
+        <select id={ratingId} value={rating} onChange={(e) => setRating(e.target.value === '' ? '' : Number(e.target.value))} className="rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 px-2 py-1">
           <option value="">—</option>
           {[1,2,3,4,5].map(n => <option key={n} value={n}>{n}</option>)}
         </select>
       </div>
       <div className="flex-1 min-w-[200px]">
-        <label className="block text-sm text-slate-700">Notes</label>
-        <input value={notes} onChange={(e) => setNotes(e.target.value)} className="w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 px-2 py-1" />
+        <label htmlFor={notesId} className="block text-sm text-slate-700">Notes</label>
+        <input id={notesId} value={notes} onChange={(e) => setNotes(e.target.value)} className="w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 px-2 py-1" />
       </div>
       <button disabled={busy} className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50">Add Visit</button>
     </form>

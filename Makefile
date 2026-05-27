@@ -22,7 +22,7 @@ MAIN_REPO_DIR := $(shell git rev-parse --git-common-dir 2>/dev/null | xargs dirn
         dev dev-d build build-d stop down logs logs-backend logs-frontend \
         shell-backend shell-frontend \
         db-init-volume db-shell db-dump db-restore db-migrate db-rollback db-makemigration \
-        check test test-backend test-frontend test-frontend-typecheck test-clean
+        check test test-backend test-frontend test-frontend-typecheck test-e2e test-clean
 
 help: ## Show available targets
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
@@ -125,6 +125,10 @@ test-frontend: ## Run frontend Jest tests in an isolated Node container
 
 test-frontend-typecheck: ## Run frontend TypeScript checks in an isolated Node container
 	$(COMPOSE_TEST) run --build --rm frontend-test npm run typecheck
+
+test-e2e: ## Run Playwright E2E tests against the isolated test stack
+	$(COMPOSE_TEST) up --build --abort-on-container-exit --exit-code-from e2e-test e2e-test
+	$(COMPOSE_TEST) down --remove-orphans
 
 test-clean: ## Remove test containers and test volumes
 	$(COMPOSE_TEST) down -v --remove-orphans

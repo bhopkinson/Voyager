@@ -17,7 +17,7 @@ describe('VisitLog', () => {
 
   it('edits and saves a visit', async () => {
     const onChanged = jest.fn().mockResolvedValue(undefined);
-    const { container } = render(
+    render(
       <VisitLog
         visit={{ id: 7, visit_date: '2026-05-27', rating: 3, notes: 'Fine' }}
         onChanged={onChanged}
@@ -25,11 +25,9 @@ describe('VisitLog', () => {
     );
 
     fireEvent.click(screen.getByRole('button', { name: 'Edit' }));
-    fireEvent.change(container.querySelector('input[type="date"]') as HTMLInputElement, {
-      target: { value: '2026-05-28' },
-    });
-    fireEvent.change(screen.getByRole('combobox'), { target: { value: '5' } });
-    fireEvent.change(screen.getByDisplayValue('Fine'), { target: { value: 'Excellent' } });
+    fireEvent.change(screen.getByLabelText('Date'), { target: { value: '2026-05-28' } });
+    fireEvent.change(screen.getByLabelText('Rating'), { target: { value: '5' } });
+    fireEvent.change(screen.getByLabelText('Notes'), { target: { value: 'Excellent' } });
     fireEvent.click(screen.getByRole('button', { name: 'Save' }));
 
     await waitFor(() => {

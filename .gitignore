@@ -22,6 +22,8 @@ yarn-error.log*
 .next/
 .turbo/
 .vercel/
+playwright-report/
+test-results/
 
 # Python
 __pycache__/
