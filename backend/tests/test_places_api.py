@@ -87,11 +87,87 @@ def test_list_places_filters_by_text_cost_tags_and_distance(client: TestClient) 
     assert {place["id"] for place in nearby.json()} == {museum["id"], park["id"]}
 
 
+def test_list_places_accepts_repeated_tag_query_params(client: TestClient) -> None:
+    museum = _create_place(client, name="Museum", tags=["culture"])
+    dinner = _create_place(client, name="Dinner", tags=["food"])
+    park = _create_place(client, name="Park", tags=["outdoors"])
+
+    response = client.get("/places", params=[("tags", "culture"), ("tags", "food")])
+
+    assert response.status_code == 200
+    assert {place["id"] for place in response.json()} == {museum["id"], dinner["id"]}
+    assert park["id"] not in {place["id"] for place in response.json()}
+
+
 def test_list_places_rejects_invalid_distance_filter(client: TestClient) -> None:
     response = client.get("/places", params={"distance_from": "not-a-location"})
 
     assert response.status_code == 400
     assert response.json()["detail"] == "distance_from must be 'lat,lon'"
+
+
+def test_create_place_rejects_invalid_payloads(client: TestClient) -> None:
+    bad_cost = client.post("/places", json={"name": "Invalid", "cost": 4})
+    bad_location = client.post("/places", json={"name": "Invalid", "location": "London"})
+    bad_url = client.post("/places", json={"name": "Invalid", "website_url": "not-a-url"})
+
+    assert bad_cost.status_code == 422
+    assert bad_location.status_code == 422
+    assert bad_url.status_code == 422
+
+
+def test_update_place_rejects_invalid_payloads(client: TestClient) -> None:
+    place = _create_place(client)
+
+    bad_cost = client.put(f"/places/{place['id']}", json={"cost": -1})
+    bad_location = client.put(f"/places/{place['id']}", json={"location": "London"})
+
+    assert bad_cost.status_code == 422
+    assert bad_location.status_code == 422
+
+
+def test_update_place_null_fields_do_not_clear_existing_values(client: TestClient) -> None:
+    place = _create_place(
+        client,
+        description="Keep me",
+        tags=["coffee"],
+        cost=2,
+        google_maps_url="https://maps.google.com/example",
+        website_url="https://example.com",
+    )
+
+    response = client.put(
+        f"/places/{place['id']}",
+        json={
+            "description": None,
+            "tags": None,
+            "cost": None,
+            "google_maps_url": None,
+            "website_url": None,
+        },
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["description"] == "Keep me"
+    assert body["tags"] == ["coffee"]
+    assert body["cost"] == 2
+    assert body["google_maps_url"] == "https://maps.google.com/example"
+    assert body["website_url"] == "https://example.com/"
+
+
+def test_deleting_place_cascades_visits(client: TestClient) -> None:
+    place = _create_place(client)
+    visit = client.post(
+        f"/places/{place['id']}/visits",
+        json={"visit_date": "2026-05-27", "rating": 5},
+    ).json()
+
+    deleted = client.delete(f"/places/{place['id']}")
+    missing_visit = client.put(f"/visits/{visit['id']}", json={"notes": "Gone"})
+
+    assert deleted.status_code == 204
+    assert missing_visit.status_code == 404
 
 
 def test_tags_endpoint_returns_distinct_lowercase_tags(client: TestClient) -> None:

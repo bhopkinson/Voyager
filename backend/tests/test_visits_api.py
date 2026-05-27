@@ -54,3 +54,20 @@ def test_create_visit_for_missing_place_returns_404(client: TestClient) -> None:
     )
 
     assert response.status_code == 404
+
+
+def test_visit_endpoints_reject_invalid_payloads(client: TestClient) -> None:
+    place = _create_place(client)
+    bad_create = client.post(
+        f"/places/{place['id']}/visits",
+        json={"visit_date": "2026-05-27", "rating": 6},
+    )
+
+    visit = client.post(
+        f"/places/{place['id']}/visits",
+        json={"visit_date": "2026-05-27", "rating": 3},
+    ).json()
+    bad_update = client.put(f"/visits/{visit['id']}", json={"rating": 0})
+
+    assert bad_create.status_code == 422
+    assert bad_update.status_code == 422

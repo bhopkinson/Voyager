@@ -22,7 +22,7 @@ MAIN_REPO_DIR := $(shell git rev-parse --git-common-dir 2>/dev/null | xargs dirn
         dev dev-d build build-d stop down logs logs-backend logs-frontend \
         shell-backend shell-frontend \
         db-init-volume db-shell db-dump db-restore db-migrate db-rollback db-makemigration \
-        test test-backend test-frontend test-clean
+        check test test-backend test-frontend test-frontend-typecheck test-clean
 
 help: ## Show available targets
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
@@ -113,6 +113,8 @@ endif
 
 # ── Tests ─────────────────────────────────────────────────────────────────────
 
+check: test test-frontend-typecheck ## Run tests and frontend type checking
+
 test: test-backend test-frontend ## Run backend and frontend tests in isolated test containers
 
 test-backend: ## Run backend tests against an isolated PostGIS test database
@@ -120,6 +122,9 @@ test-backend: ## Run backend tests against an isolated PostGIS test database
 
 test-frontend: ## Run frontend Jest tests in an isolated Node container
 	$(COMPOSE_TEST) run --build --rm frontend-test
+
+test-frontend-typecheck: ## Run frontend TypeScript checks in an isolated Node container
+	$(COMPOSE_TEST) run --build --rm frontend-test npm run typecheck
 
 test-clean: ## Remove test containers and test volumes
 	$(COMPOSE_TEST) down -v --remove-orphans

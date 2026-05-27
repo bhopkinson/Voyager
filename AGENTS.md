@@ -65,3 +65,26 @@ BACKEND_PORT=8001
 ```
 
 Both worktrees share the same `voyager_db_data` volume — one dataset, no duplication.
+
+## Testing approach for agents
+
+Use a test-first loop when the expected behavior is clear: write or update the smallest failing test, implement the change, then run the narrowest relevant target before broadening out. For legacy or unclear behavior, write a characterization test first so the current contract is explicit before changing it.
+
+Prefer tests at the lowest layer that proves the behavior:
+
+- Pydantic validation and small pure helpers: backend unit tests.
+- API, SQL, PostGIS, migrations, cascade behavior: backend tests against the isolated Docker test database.
+- React component state and API wrapper behavior: Jest and React Testing Library.
+- Page-level user flows with mocked API/router dependencies: Jest page tests.
+- Cross-service browser behavior: add a small Playwright suite only when unit/component/API coverage is already carrying most of the detail.
+
+Do not run backend tests against the shared `voyager_db_data` development database. Use:
+
+```bash
+make test-backend
+make test-frontend
+make test
+make check
+```
+
+When changing behavior, update tests in the same commit. When fixing a bug, start with a regression test that fails for the bug. When adding schema changes, include or update migration-policy/API tests as appropriate.

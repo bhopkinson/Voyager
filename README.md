@@ -98,6 +98,8 @@ make db-shell           # psql inside the database container
 make test               # runs backend (pytest) and frontend (jest) tests in isolated test containers
 make test-backend       # runs backend tests against a separate PostGIS test database
 make test-frontend      # runs frontend Jest tests
+make test-frontend-typecheck # runs frontend TypeScript checks
+make check              # runs tests and frontend type checking
 make test-clean         # removes test containers and test volumes
 ```
 
